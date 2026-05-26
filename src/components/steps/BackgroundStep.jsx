@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCharacterStore } from "../../store/characterStore";
 import { backgrounds } from "../../data/backgrounds";
+import { artMap } from "../../data/art";
 import { PHBCard } from "../ui/PHBCard";
 import { PageHeader } from "../ui/PageHeader";
 
@@ -46,6 +47,7 @@ export function BackgroundStep() {
             key={b.id}
             selected={background?.id === b.id}
             onClick={() => setBackground(b)}
+            imageSrc={artMap[b.imagePlaceholder]}
             imageKey={b.imagePlaceholder}
             title={b.name}
             subtitle={b.skillProficiencies?.join(", ")}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCharacterStore } from "../../store/characterStore";
 import { classes } from "../../data/classes";
+import { artMap } from "../../data/art";
 import { PHBCard } from "../ui/PHBCard";
 import { TraitList } from "../ui/TraitList";
 import { PageHeader } from "../ui/PageHeader";
@@ -45,6 +46,7 @@ export function ClassStep() {
             key={c.id}
             selected={selectedClass?.id === c.id}
             onClick={() => setClass(c)}
+            imageSrc={artMap[c.imagePlaceholder]}
             imageKey={c.imagePlaceholder}
             title={`${CLASS_ICONS[c.id] || ""} ${c.name}`}
             subtitle={`Hit Die: ${c.hitDie} • Primary: ${c.primaryAbility}`}

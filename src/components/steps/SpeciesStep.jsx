@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCharacterStore } from "../../store/characterStore";
 import { species } from "../../data/species";
+import { artMap } from "../../data/art";
 import { PHBCard } from "../ui/PHBCard";
 import { TraitList } from "../ui/TraitList";
 import { PageHeader } from "../ui/PageHeader";
@@ -89,6 +90,7 @@ export function SpeciesStep() {
             key={s.id}
             selected={selectedSpecies?.id === s.id}
             onClick={() => handleSelect(s)}
+            imageSrc={artMap[s.imagePlaceholder]}
             imageKey={s.imagePlaceholder}
             title={s.name}
             subtitle={`${s.size} • ${s.speed} ft. speed`}
