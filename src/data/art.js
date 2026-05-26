@@ -11,7 +11,7 @@ export const artMap = {
   bard:       base + "bard.jpeg",
   cleric:     base + "cleric.jpeg",
   druid:      base + "druid.jpeg",
-  fighter:    base + "fighter.jpeg,
+  fighter:    base + "fighter.jpeg",
   monk:       base + "monk.jpeg",
   paladin:    base + "paladin.jpeg",
   ranger:     base + "ranger.jpeg",
