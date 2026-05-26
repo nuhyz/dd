@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { useCharacterStore } from "./store/characterStore";
 import { CharacterSheet } from "./components/sheet/CharacterSheet";
 import { WelcomeStep } from "./components/steps/WelcomeStep";
@@ -5,29 +6,99 @@ import { SpeciesStep } from "./components/steps/SpeciesStep";
 import { ClassStep } from "./components/steps/ClassStep";
 import { SubclassStep } from "./components/steps/SubclassStep";
 import { BackgroundStep } from "./components/steps/BackgroundStep";
+import { PossessionsStep } from "./components/steps/PossessionsStep";
 import { AbilityScoresStep } from "./components/steps/AbilityScoresStep";
 import { SkillsStep } from "./components/steps/SkillsStep";
 import { SpellsStep } from "./components/steps/SpellsStep";
 import "./styles/phb.css";
 
-const STEPS = [
-  { id: "start",      label: "Character Info",   component: WelcomeStep },
-  { id: "species",    label: "Species / Race",    component: SpeciesStep },
-  { id: "class",      label: "Class",             component: ClassStep },
-  { id: "subclass",   label: "Subclass",          component: SubclassStep },
-  { id: "background", label: "Background",        component: BackgroundStep },
-  { id: "abilities",  label: "Ability Scores",    component: AbilityScoresStep },
-  { id: "skills",     label: "Skills",            component: SkillsStep },
-  { id: "spells",     label: "Spells",            component: SpellsStep },
-  { id: "sheet",      label: "Character Sheet",   component: () => (
+// ── Download helpers ──────────────────────────────────────────────────────────
+function exportJSON(state) {
+  const {
+    name, edition, species, class: cls, subclass, background, level, alignment,
+    abilityScores, abilityScoreMethod, skills, expertiseSkills, spells, preparedSpells,
+    draconicAncestry, elvenLineage, tieflingLegacy, goliathAncestry, gnomeLineage, aasimar_revelation,
+    customPossessions, customPatron, customNotes, extraAbilityBonuses,
+  } = state;
+
+  const data = {
+    name, edition, level, alignment, abilityScoreMethod,
+    species:   species  ? { id: species.id,  name: species.name  } : null,
+    class:     cls      ? { id: cls.id,      name: cls.name      } : null,
+    subclass:  subclass ? { id: subclass.id, name: subclass.name } : null,
+    background: background ? { id: background.id, name: background.name } : null,
+    abilityScores, skills, expertiseSkills, spells, preparedSpells,
+    draconicAncestry, elvenLineage, tieflingLegacy, goliathAncestry, gnomeLineage, aasimar_revelation,
+    customPossessions, customPatron, customNotes, extraAbilityBonuses,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `${name || "character"}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Sheet step component (with download dropdown) ─────────────────────────────
+function SheetStep() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  return (
     <div className="fade-in">
       <CharacterSheet />
       <div className="nav-buttons">
-        <button className="btn btn-secondary" onClick={() => useCharacterStore.getState().prevStep()}>← Back to Spells</button>
-        <button className="btn btn-gold" onClick={() => window.print()}>🖸 Print Sheet</button>
+        <button className="btn btn-secondary" onClick={() => useCharacterStore.getState().prevStep()}>
+          ← Back to Spells
+        </button>
+
+        <div className="download-dropdown" ref={menuRef}>
+          <button className="btn btn-gold" onClick={() => setMenuOpen((v) => !v)}>
+            ⬇ Export / Print ▾
+          </button>
+          {menuOpen && (
+            <div className="download-menu">
+              <button
+                className="download-menu-item"
+                onClick={() => { setMenuOpen(false); window.print(); }}
+              >
+                <span className="dm-icon">🖨</span> Print Sheet
+              </button>
+              <button
+                className="download-menu-item"
+                onClick={() => { setMenuOpen(false); exportJSON(useCharacterStore.getState()); }}
+              >
+                <span className="dm-icon">📄</span> Export JSON
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  )},
+  );
+}
+
+// ── Step list ──────────────────────────────────────────────────────────────────
+const STEPS = [
+  { id: "start",       label: "Character Info",  component: WelcomeStep },
+  { id: "species",     label: "Species / Race",  component: SpeciesStep },
+  { id: "class",       label: "Class",           component: ClassStep },
+  { id: "subclass",    label: "Subclass",        component: SubclassStep },
+  { id: "background",  label: "Background",      component: BackgroundStep },
+  { id: "possessions", label: "Possessions",     component: PossessionsStep },
+  { id: "abilities",   label: "Ability Scores",  component: AbilityScoresStep },
+  { id: "skills",      label: "Skills",          component: SkillsStep },
+  { id: "spells",      label: "Spells",          component: SpellsStep },
+  { id: "sheet",       label: "Character Sheet", component: SheetStep },
 ];
 
 export default function App() {
@@ -47,12 +118,8 @@ export default function App() {
     if (i === 1) return true;
     if (i === 2) return !!species;
     if (i === 3) return !!cls;
-    if (i === 4) return true;
-    if (i === 5) return true;
-    if (i === 6) return true;
-    if (i === 7) return true;
-    if (i === 8) return true;
-    return false;
+    // Steps 4–9: freely navigable once you've been there
+    return i <= step + 1;
   }
 
   return (

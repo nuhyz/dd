@@ -8,6 +8,7 @@ export function CharacterSheet({ sidebar = false }) {
     name, species, class: cls, subclass, background, level,
     alignment, abilityScores, skills, expertiseSkills,
     spells: knownSpells, edition,
+    customPossessions, customPatron, customNotes,
     getModifier, getProficiencyBonus,
   } = useCharacterStore();
 
@@ -69,6 +70,12 @@ export function CharacterSheet({ sidebar = false }) {
               <span className="sheet-field-label">Background</span>
               <span className="sheet-field-value">{background?.name || "—"}</span>
             </div>
+            {customPatron && (
+              <div className="sheet-field">
+                <span className="sheet-field-label">Patron</span>
+                <span className="sheet-field-value" style={{ fontSize: "0.78rem" }}>{customPatron}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -137,6 +144,24 @@ export function CharacterSheet({ sidebar = false }) {
             </div>
           </div>
         )}
+
+        {customPossessions?.length > 0 && (
+          <div className="sheet-section">
+            <div className="sheet-section-header">Custom Items</div>
+            <div className="sheet-section-body">
+              {customPossessions.slice(0, 4).map((item, i) => (
+                <div key={i} className="sheet-field">
+                  <span className="sheet-field-value" style={{ fontSize: "0.78rem", fontStyle: "normal" }}>• {item}</span>
+                </div>
+              ))}
+              {customPossessions.length > 4 && (
+                <p className="text-xs text-muted italic" style={{ textAlign: "center" }}>
+                  +{customPossessions.length - 4} more
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </aside>
     );
   }
@@ -157,6 +182,11 @@ export function CharacterSheet({ sidebar = false }) {
               `${edition} Edition`,
             ].filter(Boolean).join(" · ")}
           </div>
+          {customPatron && (
+            <div style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "rgba(249,245,231,0.65)", marginTop: "0.25rem", fontStyle: "italic" }}>
+              Patron / Deity: {customPatron}
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.4rem" }}>
           <div className="stat-box" style={{ background: "rgba(181,158,84,0.15)", borderColor: "rgba(181,158,84,0.3)" }}>
@@ -326,6 +356,52 @@ export function CharacterSheet({ sidebar = false }) {
                 </div>
               );
             })}
+          </>
+        )}
+
+        {/* Equipment & Possessions */}
+        {(cls?.startingEquipment?.length > 0 || background?.equipment || customPossessions?.length > 0) && (
+          <>
+            <div className="phb-rule" />
+            <h3 className="mb-2">Equipment & Possessions</h3>
+
+            {cls?.startingEquipment?.length > 0 && (
+              <div className="mb-2">
+                <h4 className="mb-1">{cls.name} Starting Equipment</h4>
+                <ul style={{ paddingLeft: "1.2rem" }}>
+                  {cls.startingEquipment.map((item, i) => (
+                    <li key={i} className="text-sm" style={{ marginBottom: "0.3rem" }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {background?.equipment && (
+              <div className="mb-2">
+                <h4 className="mb-1">{background.name} Equipment</h4>
+                <p className="text-sm">{background.equipment}</p>
+              </div>
+            )}
+
+            {customPossessions?.length > 0 && (
+              <div className="mb-2">
+                <h4 className="mb-1">Custom Items (DM Approved)</h4>
+                <ul style={{ paddingLeft: "1.2rem" }}>
+                  {customPossessions.map((item, i) => (
+                    <li key={i} className="text-sm" style={{ marginBottom: "0.3rem" }}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Personal Notes */}
+        {customNotes && (
+          <>
+            <div className="phb-rule" />
+            <h3 className="mb-2">Notes</h3>
+            <p className="text-sm" style={{ whiteSpace: "pre-wrap", lineHeight: "1.7" }}>{customNotes}</p>
           </>
         )}
       </div>

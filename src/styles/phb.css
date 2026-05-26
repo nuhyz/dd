@@ -238,10 +238,11 @@ strong { font-weight: 600; }
 
 /* ── Main Content Area ── */
 .step-content {
-  background: var(--phb-parchment);
+  background: #1c1108;
   overflow-y: auto;
   padding: 2rem 2.5rem;
   position: relative;
+  color: var(--phb-parchment);
 }
 
 .step-content::before {
@@ -367,6 +368,7 @@ strong { font-weight: 600; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
 }
 
 .card-image-placeholder {
@@ -1338,3 +1340,341 @@ strong { font-weight: 600; }
   .ability-grid { grid-template-columns: repeat(2, 1fr); }
   .cs-grid { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Dark Step-Content Overrides
+   The main content area (.step-content) is now dark. All child elements
+   inherit dark-compatible colours. PHB cards (.phb-card) keep parchment
+   for contrast. The .character-sheet full view stays parchment.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* General text */
+.step-content p,
+.step-content li,
+.step-content .text-muted { color: rgba(249, 245, 231, 0.75); }
+
+/* Headings — gold on dark */
+.step-content h1,
+.step-content h2,
+.step-content h3,
+.step-content h4,
+.step-content h5 { color: var(--phb-gold); }
+
+/* Page header */
+.step-content .page-header { border-bottom-color: var(--phb-gold); }
+.step-content .page-header h2 { color: var(--phb-gold-light); }
+.step-content .page-header p { color: rgba(249, 245, 231, 0.65); }
+.step-content .page-header::after { background: rgba(181, 158, 84, 0.4); }
+
+/* PHB decorative section box */
+.step-content .phb-section-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(181, 158, 84, 0.2);
+}
+
+/* Detail panel */
+.step-content .detail-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(181, 158, 84, 0.2);
+}
+.step-content .detail-panel .flavor {
+  color: rgba(249, 245, 231, 0.7);
+  border-left-color: var(--phb-gold);
+}
+
+/* Info block */
+.step-content .info-block {
+  background: rgba(88, 24, 13, 0.3);
+  color: rgba(249, 245, 231, 0.85);
+  border-left-color: var(--phb-red);
+}
+
+/* Search input */
+.step-content .search-input {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(181, 158, 84, 0.3);
+  color: var(--phb-parchment);
+}
+.step-content .search-input:focus { border-color: var(--phb-gold); }
+.step-content .search-input::placeholder { color: rgba(249, 245, 231, 0.3); }
+
+/* Filter chips */
+.step-content .filter-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(181, 158, 84, 0.25);
+  color: rgba(249, 245, 231, 0.75);
+}
+.step-content .filter-chip:hover {
+  border-color: var(--phb-gold);
+  color: var(--phb-parchment);
+  background: rgba(181, 158, 84, 0.1);
+}
+.step-content .filter-chip.active {
+  background: var(--phb-red);
+  border-color: var(--phb-red);
+  color: white;
+}
+
+/* Stat boxes */
+.step-content .stat-box {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(181, 158, 84, 0.25);
+}
+.step-content .stat-box .stat-value { color: var(--phb-parchment); }
+.step-content .stat-box .stat-label { color: var(--phb-gold); }
+.step-content .stat-box .stat-mod   { color: rgba(181, 158, 84, 0.7); }
+
+/* Ability blocks */
+.step-content .ability-block {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(181, 158, 84, 0.25);
+}
+.step-content .ability-label {
+  color: var(--phb-gold);
+  border-bottom-color: rgba(181, 158, 84, 0.25);
+}
+.step-content .ability-score-display { color: var(--phb-parchment); }
+.step-content .ability-modifier {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(181, 158, 84, 0.3);
+  color: var(--phb-gold);
+}
+.step-content .ability-input {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(181, 158, 84, 0.3);
+  color: var(--phb-parchment);
+}
+.step-content .ability-input:focus { border-color: var(--phb-gold); }
+
+/* Score stepper buttons */
+.step-content .score-stepper button {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--phb-gold);
+  color: var(--phb-gold);
+}
+.step-content .score-stepper button:hover:not(:disabled) {
+  background: var(--phb-gold);
+  color: var(--phb-red);
+}
+
+/* Budget bar */
+.step-content .budget-bar {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(181, 158, 84, 0.25);
+}
+.step-content .budget-bar .budget-label { color: var(--phb-gold); }
+.step-content .budget-bar .budget-number { color: var(--phb-parchment); }
+
+/* Level chips */
+.step-content .level-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(181, 158, 84, 0.25);
+  color: rgba(249, 245, 231, 0.7);
+}
+.step-content .level-chip:hover {
+  border-color: var(--phb-gold);
+  color: var(--phb-gold);
+}
+.step-content .level-chip.selected {
+  background: var(--phb-red);
+  border-color: var(--phb-red);
+  color: white;
+}
+
+/* Tabs */
+.step-content .tabs { border-bottom-color: rgba(181, 158, 84, 0.2); }
+.step-content .tab-btn { color: rgba(249, 245, 231, 0.55); }
+.step-content .tab-btn:hover { color: var(--phb-gold); }
+.step-content .tab-btn.active { color: var(--phb-gold); border-bottom-color: var(--phb-gold); }
+
+/* Skills */
+.step-content .skill-name  { color: rgba(249, 245, 231, 0.9); }
+.step-content .skill-ability { color: rgba(249, 245, 231, 0.45); }
+.step-content .skill-bonus  { color: var(--phb-gold); }
+.step-content .skill-row:hover:not(.disabled) { background: rgba(181, 158, 84, 0.07); }
+.step-content .skill-row.proficient {
+  background: rgba(88, 24, 13, 0.2);
+  border-color: rgba(88, 24, 13, 0.35);
+}
+.step-content .skill-checkbox {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(181, 158, 84, 0.5);
+}
+.step-content .skill-checkbox.checked {
+  background: var(--phb-red);
+  border-color: var(--phb-red);
+}
+.step-content .skill-checkbox.expertise {
+  background: var(--phb-gold);
+  border-color: var(--phb-gold);
+}
+
+/* Spell rows */
+.step-content .spell-row {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(181, 158, 84, 0.18);
+}
+.step-content .spell-row:hover { background: rgba(181, 158, 84, 0.07); border-color: rgba(181,158,84,0.4); }
+.step-content .spell-row.known { background: rgba(88, 24, 13, 0.2); border-color: var(--phb-red); }
+.step-content .spell-name  { color: var(--phb-gold-light); }
+.step-content .spell-meta  { color: rgba(249, 245, 231, 0.5); }
+.step-content .spell-desc-preview { color: rgba(249, 245, 231, 0.65); }
+.step-content .spell-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+
+/* Feature table */
+.step-content .feature-table th {
+  background: rgba(88, 24, 13, 0.4);
+  color: var(--phb-gold);
+  border-bottom-color: var(--phb-red);
+}
+.step-content .feature-table td {
+  border-bottom-color: rgba(181, 158, 84, 0.12);
+  color: rgba(249, 245, 231, 0.75);
+}
+.step-content .feature-table tr:hover td { background: rgba(181, 158, 84, 0.05); }
+.step-content .feature-table tr.current-level td {
+  background: rgba(88, 24, 13, 0.18);
+  color: var(--phb-parchment);
+}
+.step-content .feature-table tr.current-level td:first-child { color: var(--phb-gold); }
+
+/* Trait text */
+.step-content .trait-name { color: var(--phb-gold); }
+.step-content .trait-desc { color: rgba(249, 245, 231, 0.78); }
+
+/* Card tags on dark bg */
+.step-content .card-tag {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(181, 158, 84, 0.3);
+  color: var(--phb-gold);
+}
+.step-content .card-tag.gold {
+  background: rgba(181, 158, 84, 0.15);
+  color: var(--phb-gold-light);
+  border-color: rgba(181, 158, 84, 0.35);
+}
+
+/* Nav buttons */
+.step-content .nav-buttons { border-top-color: rgba(181, 158, 84, 0.18); }
+.step-content .btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--phb-gold);
+  border-color: rgba(181, 158, 84, 0.3);
+}
+.step-content .btn-secondary:hover:not(:disabled) {
+  background: rgba(181, 158, 84, 0.15);
+  border-color: var(--phb-gold);
+  color: var(--phb-gold-light);
+}
+
+/* PHB rule slightly dimmer on dark */
+.step-content .phb-rule { opacity: 0.45; }
+
+/* PHB Cards stay parchment (they need to pop off the dark bg) */
+.step-content .phb-card {
+  background: var(--phb-parchment);
+  border-color: var(--phb-parchment-darker);
+}
+.step-content .phb-card:hover { border-color: var(--phb-gold); }
+.step-content .phb-card.selected {
+  border-color: var(--phb-red);
+  background: #fff8f0;
+}
+.step-content .phb-card .card-title     { color: var(--phb-red); }
+.step-content .phb-card .card-subtitle  { color: var(--phb-ink-light); }
+.step-content .phb-card .card-description { color: var(--phb-ink-light); }
+.step-content .phb-card .card-tag {
+  background: var(--phb-parchment-dark);
+  border-color: var(--phb-parchment-darker);
+  color: var(--phb-red);
+}
+.step-content .phb-card .card-tag.gold {
+  background: rgba(181, 158, 84, 0.15);
+  color: #7a6530;
+  border-color: rgba(181, 158, 84, 0.4);
+}
+
+/* Character sheet (full view, step 9) stays parchment */
+.step-content .character-sheet { color: var(--phb-ink); }
+.step-content .character-sheet h1,
+.step-content .character-sheet h2,
+.step-content .character-sheet h3,
+.step-content .character-sheet h4 { color: var(--phb-red); }
+.step-content .character-sheet p,
+.step-content .character-sheet li { color: var(--phb-ink-light); }
+.step-content .character-sheet .cs-body { background: var(--phb-parchment); }
+.step-content .character-sheet .trait-name { color: var(--phb-red); }
+.step-content .character-sheet .trait-desc { color: var(--phb-ink-light); }
+.step-content .character-sheet .stat-box { background: var(--phb-parchment); border-color: var(--phb-parchment-darker); }
+.step-content .character-sheet .stat-box .stat-value { color: var(--phb-ink); }
+.step-content .character-sheet .stat-box .stat-label { color: var(--phb-red); }
+.step-content .character-sheet .stat-box .stat-mod   { color: var(--phb-red); }
+.step-content .character-sheet .skill-name   { color: var(--phb-ink); }
+.step-content .character-sheet .skill-ability { color: var(--phb-ink-light); }
+.step-content .character-sheet .skill-bonus  { color: var(--phb-red); }
+.step-content .character-sheet .skill-row.proficient { background: rgba(88,24,13,0.07); border-color: rgba(88,24,13,0.2); }
+.step-content .character-sheet .skill-row:hover:not(.disabled) { background: var(--phb-parchment-dark); }
+.step-content .character-sheet .skill-checkbox { background: var(--phb-parchment); border-color: var(--phb-red); }
+.step-content .nav-buttons { border-top-color: rgba(181, 158, 84, 0.2); }
+
+/* Download dropdown */
+.download-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.download-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background: #2a1a10;
+  border: 1.5px solid rgba(181, 158, 84, 0.4);
+  border-radius: var(--radius-md);
+  min-width: 180px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  z-index: 200;
+  overflow: hidden;
+}
+.download-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  font-family: var(--font-header);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--phb-parchment);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+}
+.download-menu-item:hover { background: rgba(181, 158, 84, 0.12); }
+.download-menu-item + .download-menu-item { border-top: 1px solid rgba(181, 158, 84, 0.15); }
+.download-menu-item .dm-icon { font-size: 1rem; }
+
+/* Spell limit counter badge */
+.spell-limit-bar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.spell-limit-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-header);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-xl);
+  border: 1.5px solid;
+}
+.spell-limit-badge.ok    { color: var(--phb-gold); border-color: rgba(181,158,84,0.4); background: rgba(181,158,84,0.08); }
+.spell-limit-badge.full  { color: #16a34a; border-color: rgba(22,163,74,0.4);  background: rgba(22,163,74,0.08); }
+.spell-limit-badge.over  { color: #dc2626; border-color: rgba(220,38,38,0.4);  background: rgba(220,38,38,0.08); }
+.spell-limit-badge .slb-num { font-size: 0.95rem; font-weight: 700; }

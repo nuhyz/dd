@@ -11,6 +11,32 @@ const SCHOOL_COLORS = {
 
 const NON_CASTERS = ["barbarian", "fighter", "monk", "rogue"];
 
+// Spells Known (leveled spells, index = level 1-20)
+const SPELLS_KNOWN = {
+  bard:     [null, 4,5,6,7,8,9,10,11,12,12,13,13,14,14,15,15,16,16,16,17],
+  ranger:   [null, 2,3,3,4,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11],
+  sorcerer: [null, 2,3,4,5,6,7,8,9,10,11,12,12,13,13,14,15,15,15,15,15],
+  warlock:  [null, 2,3,4,4,5,5,6,6,7,7,8,8,9,9,9,9,9,9,9,9],
+};
+
+// Cantrips Known (index = level 1-20)
+const CANTRIPS_KNOWN = {
+  bard:     [null, 2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
+  cleric:   [null, 3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5],
+  druid:    [null, 2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
+  sorcerer: [null, 4,4,4,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6],
+  warlock:  [null, 2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
+  wizard:   [null, 3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5],
+};
+
+// Prepared casters: spells prepared = abilityMod + level (or half level)
+const PREPARED_CASTERS = {
+  cleric:  { label: "Wisdom", key: "Wisdom", halfLevel: false },
+  druid:   { label: "Wisdom", key: "Wisdom", halfLevel: false },
+  paladin: { label: "Charisma", key: "Charisma", halfLevel: true },
+  wizard:  { label: "Intelligence", key: "Intelligence", halfLevel: false },
+};
+
 function levelLabel(level) {
   if (level === 0) return "Cantrip";
   if (level === 1) return "1st";
@@ -22,6 +48,7 @@ function levelLabel(level) {
 export function SpellsStep() {
   const {
     class: selectedClass, level, spells: knownSpells, toggleSpell,
+    getModifier,
     nextStep, prevStep,
   } = useCharacterStore();
 
@@ -30,7 +57,8 @@ export function SpellsStep() {
   const [search, setSearch] = useState("");
   const [expandedSpell, setExpandedSpell] = useState(null);
 
-  const isNonCaster = !selectedClass || NON_CASTERS.includes(selectedClass.id);
+  const classId = selectedClass?.id || "";
+  const isNonCaster = !selectedClass || NON_CASTERS.includes(classId);
 
   // Filter spells accessible to the class
   const classSpells = isNonCaster
@@ -52,6 +80,44 @@ export function SpellsStep() {
   });
 
   const levels = [0, 1, 2, 3, 4, 5].filter((l) => l === 0 || l <= maxSpellLevel);
+
+  // ── Spell limit calculations ──────────────────────────────────────────────
+  const knownCantrips = knownSpells.filter((id) => {
+    const sp = spells.find((s) => s.id === id);
+    return sp?.level === 0;
+  });
+  const knownLeveled = knownSpells.filter((id) => {
+    const sp = spells.find((s) => s.id === id);
+    return sp && sp.level > 0;
+  });
+
+  const maxCantrips = CANTRIPS_KNOWN[classId]?.[level] ?? null;
+  const maxLeveled  = SPELLS_KNOWN[classId]?.[level] ?? null;
+
+  // Prepared casters
+  const prepConfig = PREPARED_CASTERS[classId] || null;
+  let maxPrepared = null;
+  if (prepConfig) {
+    const abilityMod = getModifier(prepConfig.key);
+    const lvlContrib = prepConfig.halfLevel ? Math.floor(level / 2) : level;
+    maxPrepared = Math.max(1, abilityMod + lvlContrib);
+  }
+
+  // Can the user still pick more?
+  function canSelectMore(spell) {
+    if (knownSpells.includes(spell.id)) return true; // already selected — can deselect
+    if (spell.level === 0 && maxCantrips !== null && knownCantrips.length >= maxCantrips) return false;
+    if (spell.level > 0 && maxLeveled !== null && knownLeveled.length >= maxLeveled) return false;
+    if (spell.level > 0 && prepConfig && knownLeveled.length >= maxPrepared) return false;
+    return true;
+  }
+
+  function badgeClass(current, max) {
+    if (max === null) return null;
+    if (current > max) return "over";
+    if (current === max) return "full";
+    return "ok";
+  }
 
   if (isNonCaster) {
     return (
@@ -77,10 +143,41 @@ export function SpellsStep() {
         subtitle={`Select spells for your ${selectedClass?.name} (Level ${level}). Max spell level: ${levelLabel(maxSpellLevel)}.`}
       />
 
-      <div className="info-block mb-2">
-        {knownSpells.length} spell{knownSpells.length !== 1 ? "s" : ""} selected.
-        {" "}Click a spell to add/remove it from your list.
+      {/* Spell limit counters */}
+      <div className="spell-limit-bar">
+        {maxCantrips !== null && (
+          <div className={`spell-limit-badge ${badgeClass(knownCantrips.length, maxCantrips)}`}>
+            <span>Cantrips</span>
+            <span className="slb-num">{knownCantrips.length}</span>
+            <span style={{ opacity: 0.6 }}>/ {maxCantrips}</span>
+          </div>
+        )}
+        {maxLeveled !== null && (
+          <div className={`spell-limit-badge ${badgeClass(knownLeveled.length, maxLeveled)}`}>
+            <span>Spells Known</span>
+            <span className="slb-num">{knownLeveled.length}</span>
+            <span style={{ opacity: 0.6 }}>/ {maxLeveled}</span>
+          </div>
+        )}
+        {prepConfig && maxPrepared !== null && (
+          <div className={`spell-limit-badge ${badgeClass(knownLeveled.length, maxPrepared)}`}>
+            <span>Prepared</span>
+            <span className="slb-num">{knownLeveled.length}</span>
+            <span style={{ opacity: 0.6 }}>/ {maxPrepared}</span>
+          </div>
+        )}
+        {maxCantrips === null && maxLeveled === null && !prepConfig && (
+          <div className="spell-limit-badge ok">
+            <span>{knownSpells.length} spell{knownSpells.length !== 1 ? "s" : ""} selected</span>
+          </div>
+        )}
       </div>
+
+      {prepConfig && (
+        <div className="info-block mb-2" style={{ fontSize: "0.85rem" }}>
+          As a {selectedClass.name}, you prepare spells each day: <strong>{prepConfig.label} modifier + {prepConfig.halfLevel ? "½ " : ""}Level</strong> = <strong>{maxPrepared} spell{maxPrepared !== 1 ? "s" : ""}</strong>. Click a spell to add/remove it from your prepared list.
+        </div>
+      )}
 
       <input
         className="search-input"
@@ -110,15 +207,18 @@ export function SpellsStep() {
       ) : (
         <div className="spell-list">
           {visible.map((sp) => {
-            const known = knownSpells.includes(sp.id);
+            const known    = knownSpells.includes(sp.id);
             const expanded = expandedSpell === sp.id;
+            const blocked  = !known && !canSelectMore(sp);
 
             return (
               <div
                 key={sp.id}
                 className={`spell-row${known ? " known" : ""}`}
-                onClick={() => toggleSpell(sp.id)}
+                onClick={() => !blocked && toggleSpell(sp.id)}
                 onContextMenu={(e) => { e.preventDefault(); setExpandedSpell(expanded ? null : sp.id); }}
+                style={{ opacity: blocked ? 0.45 : 1, cursor: blocked ? "not-allowed" : "pointer" }}
+                title={blocked ? "Spell limit reached" : undefined}
               >
                 <span className={`spell-level-badge${sp.level === 0 ? " cantrip" : ""}`}>
                   {sp.level === 0 ? "Cantrip" : `${levelLabel(sp.level)}`}
@@ -148,6 +248,9 @@ export function SpellsStep() {
                     {sp.concentration && <span className="spell-badge concentration">Concentration</span>}
                   </div>
                 </div>
+                {blocked && (
+                  <span style={{ fontSize: "0.7rem", color: "rgba(249,245,231,0.4)", fontFamily: "var(--font-header)", letterSpacing: "0.04em", flexShrink: 0, alignSelf: "center" }}>LIMIT</span>
+                )}
               </div>
             );
           })}

@@ -16,10 +16,12 @@ export function AbilityScoresStep() {
     abilityScores, setAbilityScore, setAllAbilityScores,
     abilityScoreMethod, setAbilityScoreMethod,
     edition, background, species,
+    extraAbilityBonuses, setExtraAbilityBonus,
     nextStep, prevStep,
   } = useCharacterStore();
 
   const [stdAssignments, setStdAssignments] = useState({});
+  const [showExtraBonus, setShowExtraBonus] = useState(false);
 
   const used = usedPoints(abilityScores);
   const remaining = POINT_BUY_BUDGET - used;
@@ -33,7 +35,8 @@ export function AbilityScoresStep() {
     let base = abilityScores[ability];
     const bgBonus = bgAsi.find((a) => a.ability === ability)?.amount || 0;
     const speciesBonus = speciesAsi.find((a) => a.ability === ability)?.amount || 0;
-    return base + bgBonus + speciesBonus;
+    const extra = extraAbilityBonuses?.[ability] || 0;
+    return base + bgBonus + speciesBonus + extra;
   }
 
   function handlePointBuy(ability, delta) {
@@ -62,6 +65,8 @@ export function AbilityScoresStep() {
   const unassigned = STANDARD_ARRAY.filter(
     (v) => !Object.values(stdAssignments).includes(String(v))
   );
+
+  const anyExtraBonus = ABILITIES.some((a) => (extraAbilityBonuses?.[a] || 0) !== 0);
 
   return (
     <div className="fade-in">
@@ -181,6 +186,11 @@ export function AbilityScoresStep() {
                   +{bgAsi.find((a) => a.ability === ability)?.amount || speciesAsi.find((a) => a.ability === ability)?.amount} bonus
                 </span>
               )}
+              {(extraAbilityBonuses?.[ability] || 0) !== 0 && (
+                <span className="card-tag" style={{ fontSize: "0.6rem", color: "#60a5fa", borderColor: "rgba(96,165,250,0.4)", background: "rgba(96,165,250,0.1)" }}>
+                  DM {extraAbilityBonuses[ability] > 0 ? "+" : ""}{extraAbilityBonuses[ability]}
+                </span>
+              )}
 
               <div className="ability-modifier">{modSign(total)}</div>
               {total !== base && (
@@ -206,6 +216,55 @@ export function AbilityScoresStep() {
             );
           })}
         </div>
+      </div>
+
+      {/* Extra Ability Bonuses — DM Approval Required */}
+      <div className="phb-section-box mt-2">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <strong className="font-header text-xs uppercase" style={{ color: "var(--phb-gold)" }}>
+            Extra Ability Bonuses {anyExtraBonus && <span style={{ color: "#60a5fa" }}>● active</span>}
+          </strong>
+          <button
+            className="btn btn-secondary"
+            style={{ fontSize: "0.68rem", padding: "0.3rem 0.85rem" }}
+            onClick={() => setShowExtraBonus((v) => !v)}
+          >
+            {showExtraBonus ? "▲ Hide" : "▼ Show"}
+          </button>
+        </div>
+
+        {showExtraBonus && (
+          <>
+            <div className="info-block" style={{ marginTop: "0.75rem", marginBottom: "0.75rem" }}>
+              ⚠️ <strong>DM Approval Required</strong> — These bonuses are for magic items, boons, or house-rule increases granted by your DM. Do not add values here without explicit DM permission.
+            </div>
+            <div className="ability-grid" style={{ marginTop: "0.5rem" }}>
+              {ABILITIES.map((ability) => {
+                const extra = extraAbilityBonuses?.[ability] || 0;
+                return (
+                  <div key={ability} className="ability-block" style={{ gap: "0.25rem" }}>
+                    <div className="ability-label">{ABILITY_ABBREVS[ability]}</div>
+                    <div className="score-stepper">
+                      <button onClick={() => setExtraAbilityBonus(ability, Math.max(-10, extra - 1))}>−</button>
+                      <span className="ability-score-display" style={{ fontSize: "1.2rem", color: extra !== 0 ? "#60a5fa" : undefined }}>
+                        {extra > 0 ? `+${extra}` : extra}
+                      </span>
+                      <button onClick={() => setExtraAbilityBonus(ability, Math.min(10, extra + 1))}>+</button>
+                    </div>
+                    {extra !== 0 && (
+                      <button
+                        onClick={() => setExtraAbilityBonus(ability, 0)}
+                        style={{ fontSize: "0.6rem", color: "rgba(249,245,231,0.45)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-header)" }}
+                      >
+                        reset
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="nav-buttons">

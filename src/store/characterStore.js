@@ -9,6 +9,15 @@ const defaultAbilityScores = {
   Charisma: 10,
 };
 
+const defaultExtraAbilityBonuses = {
+  Strength: 0,
+  Dexterity: 0,
+  Constitution: 0,
+  Intelligence: 0,
+  Wisdom: 0,
+  Charisma: 0,
+};
+
 export const useCharacterStore = create((set, get) => ({
   // Meta
   step: 0,
@@ -36,6 +45,12 @@ export const useCharacterStore = create((set, get) => ({
   goliathAncestry: null,
   gnomeLineage: null,
   aasimar_revelation: null,
+
+  // Custom / extra fields
+  customPossessions: [],
+  customPatron: "",
+  customNotes: "",
+  extraAbilityBonuses: { ...defaultExtraAbilityBonuses },
 
   // Actions
   setEdition: (edition) => set({ edition, species: null, class: null, subclass: null, background: null }),
@@ -91,10 +106,44 @@ export const useCharacterStore = create((set, get) => ({
   setGnomeLineage: (l) => set({ gnomeLineage: l }),
   setAasimarRevelation: (r) => set({ aasimar_revelation: r }),
 
+  // Custom possessions
+  addCustomPossession: (item) =>
+    set((s) => ({ customPossessions: [...s.customPossessions, item] })),
+  removeCustomPossession: (index) =>
+    set((s) => ({ customPossessions: s.customPossessions.filter((_, i) => i !== index) })),
+
+  // Custom patron / notes
+  setCustomPatron: (customPatron) => set({ customPatron }),
+  setCustomNotes: (customNotes) => set({ customNotes }),
+
+  // Extra ability bonuses (require DM approval)
+  setExtraAbilityBonus: (ability, amount) =>
+    set((s) => ({ extraAbilityBonuses: { ...s.extraAbilityBonuses, [ability]: amount } })),
+
   // Computed helpers
   getModifier: (ability) => {
-    const score = get().abilityScores[ability];
-    return Math.floor((score - 10) / 2);
+    const state = get();
+    const score = state.abilityScores[ability];
+    const edition = state.edition;
+    const background = state.background;
+    const species = state.species;
+
+    // Background ASI (2024 edition)
+    const bgBonus =
+      edition === "2024" && background?.abilityScoreIncreases
+        ? (background.abilityScoreIncreases.find((a) => a.ability === ability)?.amount || 0)
+        : 0;
+
+    // Species ASI (2014 edition)
+    const speciesBonus =
+      edition === "2014" && species?.abilityScoreIncreases
+        ? (species.abilityScoreIncreases.find((a) => a.ability === ability)?.amount || 0)
+        : 0;
+
+    // Extra DM-approved bonus
+    const extraBonus = state.extraAbilityBonuses?.[ability] || 0;
+
+    return Math.floor((score + bgBonus + speciesBonus + extraBonus - 10) / 2);
   },
   getProficiencyBonus: () => {
     const level = get().level;
@@ -130,6 +179,10 @@ export const useCharacterStore = create((set, get) => ({
       goliathAncestry: null,
       gnomeLineage: null,
       aasimar_revelation: null,
+      customPossessions: [],
+      customPatron: "",
+      customNotes: "",
+      extraAbilityBonuses: { ...defaultExtraAbilityBonuses },
     }),
 }));
 
